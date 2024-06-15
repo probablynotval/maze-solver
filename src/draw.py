@@ -11,19 +11,19 @@ class Point:
 
 
 class Line:
-    def __init__(self, point_1: Point, point_2: Point):
-        self._point_1 = point_1
-        self._point_2 = point_2
+    def __init__(self, p1: Point, p2: Point):
+        self._p1 = p1
+        self._p2 = p2
 
     def _draw(self, canvas: Canvas, fill_color: str):
         canvas.create_line(
-            self._point_1._x,
-            self._point_1._y,
-            self._point_2._x,
-            self._point_2._y,
+            self._p1._x,
+            self._p1._y,
+            self._p2._x,
+            self._p2._y,
             fill=fill_color,
             width=2,
         )
 
     def __repr__(self) -> str:
-        return f"Line(point_1={self._point_1}, point_2={self._point_2})"
+        return f"Line(p1={self._p1}, p2={self._p2})"
