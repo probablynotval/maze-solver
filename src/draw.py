@@ -15,14 +15,14 @@ class Line:
         self._p1 = p1
         self._p2 = p2
 
-    def _draw(self, canvas: Canvas, fill_color: str):
+    def _draw(self, canvas: Canvas, fill_color: str, width: int = 2):
         canvas.create_line(
             self._p1._x,
             self._p1._y,
             self._p2._x,
             self._p2._y,
             fill=fill_color,
-            width=2,
+            width=width,
         )
 
     def __repr__(self) -> str:

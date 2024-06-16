@@ -29,8 +29,5 @@ class Window:
     def close(self):
         self._is_running = False
 
-    def draw_line(self, line: Line, fill_color: str = "black"):
-        line._draw(self._canvas, fill_color)
-
-    # def draw_cell(self, top_left: Point, bottom_right: Point):
-    #     Cell()._draw(self._canvas, top_left, bottom_right)
+    def draw_line(self, line: Line, fill_color: str = "black", width: int = 2):
+        line._draw(self._canvas, fill_color, width)
