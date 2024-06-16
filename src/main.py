@@ -17,7 +17,9 @@ def main():
     )
 
     window = Window(window_size._x, window_size._y)
-    Maze(maze_pos, maze_cell_size, maze_rows_cols._x, maze_rows_cols._y, window, 5)
+    Maze(
+        maze_pos, maze_cell_size, maze_rows_cols._x, maze_rows_cols._y, window, 10
+    ).solve()
 
     window.wait_for_close()
 

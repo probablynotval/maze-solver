@@ -50,11 +50,15 @@ class Cell:
         else:
             self._window.draw_line(bottom_wall, "white")
 
-    def draw_move(self, to_cell: "Cell", undo=False):
+    def draw_move(self, to_cell: "Cell", undo=False, delay=0):
         if undo:
-            self._window.draw_line(self.get_center(), to_cell.get_center(), "gray")
+            self._window.draw_line(
+                Line(self.get_center(), to_cell.get_center()), "gray"
+            )
         else:
-            self._window.draw_line(self.get_center(), to_cell.get_center(), "red")
+            self._window.draw_line(Line(self.get_center(), to_cell.get_center()), "red")
+        if delay > 0:
+            time.sleep(delay)
 
     def get_center(self) -> Point:
         center_x = self._x1 + ((self._x2 - self._x1) / 2)
@@ -94,6 +98,7 @@ class Maze:
 
         self._create_cells()
         self._break_walls_r(Point(0, 0))
+        self._reset_cells_visited()
 
     def _create_cells(self):
         self._cells = [
@@ -128,7 +133,7 @@ class Maze:
         if self._window is None:
             return
         self._window.redraw()
-        time.sleep(5 / (self._rows * self._cols))
+        time.sleep(2 / (self._rows * self._cols))
 
     def _break_walls_r(self, index: Point):
         current_cell: Cell = self._cells[index._x][index._y]
@@ -136,20 +141,22 @@ class Maze:
         while True:
             to_visit = []
 
-            if index._x > 0 and not self._cells[index._x - 1][index._y].visited:
-                to_visit.append(Point(index._x - 1, index._y))
-            if (
-                index._x < self._rows - 1
-                and not self._cells[index._x + 1][index._y].visited
-            ):
-                to_visit.append(Point(index._x + 1, index._y))
-            if index._y > 0 and not self._cells[index._x][index._y - 1].visited:
-                to_visit.append(Point(index._x, index._y - 1))
-            if (
-                index._y < self._cols - 1
-                and not self._cells[index._x][index._y + 1].visited
-            ):
-                to_visit.append(Point(index._x, index._y + 1))
+            if index._x > 0:
+                left: Cell = self._cells[index._x - 1][index._y]
+                if not left.visited:
+                    to_visit.append(Point(index._x - 1, index._y))
+            if index._x < self._rows - 1:
+                right: Cell = self._cells[index._x + 1][index._y]
+                if not right.visited:
+                    to_visit.append(Point(index._x + 1, index._y))
+            if index._y > 0:
+                up: Cell = self._cells[index._x][index._y - 1]
+                if not up.visited:
+                    to_visit.append(Point(index._x, index._y - 1))
+            if index._y < self._cols - 1:
+                down: Cell = self._cells[index._x][index._y + 1]
+                if not down.visited:
+                    to_visit.append(Point(index._x, index._y + 1))
 
             if len(to_visit) == 0:
                 self._draw_cell(Point(index._x, index._y))
@@ -159,21 +166,60 @@ class Maze:
             next_index: Point = to_visit[next_visit]
             next_cell: Cell = self._cells[next_index._x][next_index._y]
 
-            if next_index._x == index._x + 1:
-                print("right")
-                current_cell.has_right_wall = False
-                next_cell.has_left_wall = False
             if next_index._x == index._x - 1:
-                print("left")
                 current_cell.has_left_wall = False
                 next_cell.has_right_wall = False
-            if next_index._y == index._y + 1:
-                print("down")
-                current_cell.has_bottom_wall = False
-                next_cell.has_top_wall = False
+            if next_index._x == index._x + 1:
+                current_cell.has_right_wall = False
+                next_cell.has_left_wall = False
             if next_index._y == index._y - 1:
-                print("up")
                 current_cell.has_top_wall = False
                 next_cell.has_bottom_wall = False
+            if next_index._y == index._y + 1:
+                current_cell.has_bottom_wall = False
+                next_cell.has_top_wall = False
 
             self._break_walls_r(next_index)
+
+    def _reset_cells_visited(self):
+        for i in range(self._rows):
+            for j in range(self._cols):
+                self._cells[i][j].visited = False
+
+    def _solve_r(self, index: Point) -> bool:
+        self._animate()
+        current_cell: Cell = self._cells[index._x][index._y]
+        current_cell.visited = True
+        if current_cell == self._cells[self._rows - 1][self._cols - 1]:
+            return True
+
+        directions = []
+
+        if index._x > 0:
+            left: Cell = self._cells[index._x - 1][index._y]
+            if not left.visited and not left.has_right_wall:
+                directions.append(Point(index._x - 1, index._y))
+        if index._x < self._rows - 1:
+            right: Cell = self._cells[index._x + 1][index._y]
+            if not right.visited and not right.has_left_wall:
+                directions.append(Point(index._x + 1, index._y))
+        if index._y > 0:
+            up: Cell = self._cells[index._x][index._y - 1]
+            if not up.visited and not up.has_bottom_wall:
+                directions.append(Point(index._x, index._y - 1))
+        if index._y < self._cols - 1:
+            down: Cell = self._cells[index._x][index._y + 1]
+            if not down.visited and not down.has_top_wall:
+                directions.append(Point(index._x, index._y + 1))
+
+        for direction in directions:
+            next_cell: Cell = self._cells[direction._x][direction._y]
+            current_cell.draw_move(next_cell)
+            if self._solve_r(direction) == True:
+                return True
+            else:
+                current_cell.draw_move(next_cell, True)
+        return False
+
+    def solve(self) -> bool:
+        return self._solve_r(Point(0, 0))
