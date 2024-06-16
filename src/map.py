@@ -52,17 +52,17 @@ class Cell:
 
     def draw_move(self, to_cell: "Cell", undo=False, delay=0):
         if undo:
-            self._window.draw_line(
-                Line(self.get_center(), to_cell.get_center()), "gray"
-            )
-        else:
             self._window.draw_line(Line(self.get_center(), to_cell.get_center()), "red")
+        else:
+            self._window.draw_line(
+                Line(self.get_center(), to_cell.get_center()), "green"
+            )
         if delay > 0:
             time.sleep(delay)
 
     def get_center(self) -> Point:
-        center_x = self._x1 + ((self._x2 - self._x1) / 2)
-        center_y = self._y1 + ((self._y2 - self._y1) / 2)
+        center_x = self._x1 + ((self._x2 - self._x1) // 2)
+        center_y = self._y1 + ((self._y2 - self._y1) // 2)
         return Point(center_x, center_y)
 
     def __repr__(self) -> str:
