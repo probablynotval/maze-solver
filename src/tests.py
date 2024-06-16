@@ -1,7 +1,7 @@
 import unittest
 
-from map import Cell
-from map import Maze
+from maze import Cell
+from maze import Maze
 from window_builder import Point
 
 

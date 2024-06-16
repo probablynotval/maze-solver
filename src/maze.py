@@ -214,7 +214,7 @@ class Maze:
 
         for direction in directions:
             next_cell: Cell = self._cells[direction._x][direction._y]
-            current_cell.draw_move(next_cell)
+            current_cell.draw_move(next_cell, delay=0.1)
             if self._solve_r(direction) == True:
                 return True
             else:
